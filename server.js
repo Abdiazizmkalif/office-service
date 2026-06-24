@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path'); // 👈 Added this to handle absolute directory locations safely
 const { PrismaClient } = require('@prisma/client');
 const adminRouter = require('./admin'); // Import your new router file
 
@@ -9,7 +10,15 @@ const prisma = new PrismaClient();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 1. User Form Submission Route
+// 1. Serve static files from your 'public' folder (makes logo.png and minibus.png work)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 2. Main Root Route - Sends the beautiful registration page to the user
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 3. User Form Submission Route
 app.post('/submit', async (req, res) => {
     try {
         const { name, mobile_number, car_type, tin_number } = req.body;
@@ -29,7 +38,7 @@ app.post('/submit', async (req, res) => {
     }
 });
 
-// 2. Link the Admin Router Module
+// 4. Link the Admin Router Module
 // This tells Express: any request that starts with "/admin" should go to admin.js
 app.use('/admin', adminRouter(prisma));
 
