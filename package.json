@@ -1,0 +1,22 @@
+{
+  "name": "exam-form",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+  "build": "npx prisma generate",
+  "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "express": "^5.2.1",
+    "express-basic-auth": "^1.2.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
+  }
+}
