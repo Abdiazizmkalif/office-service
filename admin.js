@@ -42,6 +42,7 @@ module.exports = (prisma) => {
                 <head>
                     <meta charset="UTF-8">
                     <title>Admin Dashboard - Submissions</title>
+                    <link rel="icon" type="image/png" href="logo.png">
                     <style>
                         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 30px; background-color: #f4f6f9; color: #333; }
                         h1 { margin-bottom: 20px; font-weight: 600; }
