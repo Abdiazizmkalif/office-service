@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Exam Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+  :root{
+    --ink-900:#18242f;
+    --ink-700:#4b5a64;
+    --paper:#eef1ec;
+    --card:#fbfbf8;
+    --amber:#d98a2b;
+    --amber-dark:#b66f1d;
+    --green:#2f8f5b;
+    --green-dark:#24714a;
+    --line:#cfd3c7;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px 20px;
+    background:var(--ink-900);
+    font-family:'IBM Plex Sans', sans-serif;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* faint center lane line — the road this permit travels on */
+  .lane{
+    position:fixed;
+    top:0; bottom:0; left:50%;
+    width:4px;
+    transform:translateX(-50%);
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.07) 0 26px, transparent 26px 50px);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .permit{
+    position:relative;
+    z-index:1;
+    width:460px;
+    max-width:92vw;
+    background:var(--card);
+    border-radius:14px;
+    box-shadow:0 30px 60px -18px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.05);
+    padding-bottom:30px;
+  }
+
+  /* ---- header strip ---- */
+  .permit-head{
+    background:var(--ink-900);
+    color:#fff;
+    padding:32px 36px 26px;
+    border-radius:14px 14px 0 0;
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:0 0 8px;
+  }
+
+  .permit-head h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:0.02em;
+    line-height:1.18;
+    margin:0;
+    max-width:78%;
+  }
+
+  /* ---- official seal: the signature element ---- */
+  .seal{
+    position:absolute;
+    top:auto;
+    bottom:-34px;
+    right:28px;
+    width:84px;
+    height:84px;
+    transform:rotate(-9deg);
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,0.25));
+    animation:stamp-in 0.5s cubic-bezier(.2,1.4,.4,1) 0.15s backwards;
+  }
+  @keyframes stamp-in{
+    from{ opacity:0; transform:rotate(-9deg) scale(1.6); }
+    to{ opacity:1; transform:rotate(-9deg) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .seal{ animation:none; }
+  }
+
+  /* ---- meta row ---- */
+  .permit-meta{
+    padding:42px 36px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-700);
+  }
+
+  /* ---- perforation with ticket notches ---- */
+  .perforation{
+    position:relative;
+    margin:0 36px 26px;
+    border-top:2px dashed var(--line);
+  }
+  .perforation::before,
+  .perforation::after{
+    content:"";
+    position:absolute;
+    top:-11px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:var(--ink-900);
+  }
+  .perforation::before{ left:-47px; }
+  .perforation::after{ right:-47px; }
+
+  /* ---- form ---- */
+  .permit-form{
+    padding:0 36px;
+  }
+
+  .field{ margin-bottom:22px; }
+
+  .field label{
+    display:block;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-700);
+    margin-bottom:9px;
+  }
+
+  .field label .req{ color:var(--amber-dark); margin-left:3px; }
+
+  .field input,
+  .field select{
+    width:100%;
+    border:none;
+    border-bottom:2px solid var(--line);
+    background:transparent;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    color:var(--ink-900);
+    padding:8px 2px 10px;
+    outline:none;
+    border-radius:0;
+    transition:border-color .2s ease;
+  }
+
+  .field input::placeholder{
+    font-family:'IBM Plex Sans', sans-serif;
+    color:#9aa39c;
+  }
+
+  .field input:focus,
+  .field select:focus{
+    border-bottom-color:var(--amber);
+  }
+
+  .field select{
+    cursor:pointer;
+    appearance:none;
+    padding-right:26px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234b5a64' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 2px center;
+    background-size:16px;
+  }
+
+  .submit-btn{
+    width:100%;
+    margin-top:6px;
+    padding:15px 20px;
+    background:var(--green);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-family:'Oswald', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.07em;
+    text-transform:uppercase;
+    cursor:pointer;
+    box-shadow:0 10px 20px -9px rgba(47,143,91,0.6);
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .submit-btn:hover{
+    transform:translateY(-2px);
+    background:var(--green-dark);
+    box-shadow:0 14px 22px -8px rgba(47,143,91,0.65);
+  }
+  .submit-btn:active{ transform:translateY(0); }
+  .submit-btn:focus-visible{
+    outline:3px solid var(--amber);
+    outline-offset:3px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .submit-btn{ transition:none; }
+  }
+
+  .fine-print{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.04em;
+    color:var(--ink-700);
+    opacity:0.65;
+    margin:18px 0 0;
+  }
+
+  @media (max-width:480px){
+    body{ padding:28px 14px; }
+    .permit-head{ padding:26px 24px 22px; }
+    .permit-head h1{ font-size:22px; max-width:85%; }
+    .permit-meta{ padding:34px 24px 14px; }
+    .perforation{ margin:0 24px 22px; }
+    .perforation::before{ left:-35px; }
+    .perforation::after{ right:-35px; }
+    .permit-form{ padding:0 24px; }
+    .seal{ width:68px; height:68px; right:18px; bottom:-26px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="lane" aria-hidden="true"></div>
+
+  <main class="permit">
+    <div class="permit-head">
+      <p class="eyebrow">Road &amp; Transport Authority</p>
+      <h1>Vehicle Exam Registration</h1>
+
+      <svg class="seal" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <path id="sealArcTop" d="M 12 50 A 38 38 0 1 1 88 50" />
+          <path id="sealArcBottom" d="M 18 65 A 32 32 0 0 0 82 65" />
+        </defs>
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#d98a2b" stroke-width="2"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#d98a2b" stroke-width="1"/>
+        <text font-family="IBM Plex Mono, monospace" font-size="6.3" fill="#d98a2b" letter-spacing="1.5">
+          <textPath href="#sealArcTop" startOffset="2">EXAM &amp; LICENSING DIVISION</textPath>
+        </text>
+        <text font-family="Oswald, sans-serif" font-size="11" font-weight="600" fill="#d98a2b" text-anchor="middle">
+          <tspan x="50" y="48">ROAD</tspan>
+          <tspan x="50" y="60">TEST</tspan>
+        </text>
+      </svg>
+    </div>
+
+    <div class="permit-meta">
+      <span>Vehicle &amp; Operator Form</span>
+      <span id="todayDate">—</span>
+    </div>
+
+    <div class="perforation"></div>
+
+    <form class="permit-form" action="/submit" method="POST">
+      <div class="field">
+        <label for="name">Full Name<span class="req">*</span></label>
+        <input type="text" id="name" name="name" placeholder="Enter full official name" required>
+      </div>
+
+      <div class="field">
+        <label for="mobile_number">Mobile Number<span class="req">*</span></label>
+        <input type="tel" id="mobile_number" name="mobile_number" placeholder="09... or 07..." required>
+      </div>
+
+      <div class="field">
+        <label for="car_type">Vehicle / License Class<span class="req">*</span></label>
+        <select id="car_type" name="car_type" required>
+          <option value="" disabled selected>Select license type</option>
+          <option value="Automobile">Automobile</option>
+          <option value="Passenger">Passenger</option>
+          <option value="Dry cargo">Dry cargo</option>
+          <option value="Three cycle">Three cycle</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="tin_number">TIN Number<span class="req">*</span></label>
+        <input type="text" id="tin_number" name="tin_number" placeholder="Enter TIN number here" required>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Registration</button>
+    </form>
+
+    <p class="fine-print">Double-check every field — corrections after submission require a new form.</p>
+  </main>
+
+  <script>
+    var el = document.getElementById('todayDate');
+    if (el) {
+      var d = new Date();
+      var opts = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      el.textContent = d.toLocaleDateString('en-GB', opts);
+    }
+  </script>
+
+</body>
+</html>
