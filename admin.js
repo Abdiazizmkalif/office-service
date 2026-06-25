@@ -394,9 +394,10 @@ module.exports = (prisma) => {
                             var month = date.getMonth() + 1;
                             var day = date.getDate();
 
-                            var ethYear = year - 8;
+                            // 🌟 FIXED: Changed base from year - 8 to year - 7
+                            var ethYear = year - 7; 
                             if (month < 9 || (month === 9 && day < 11)) {
-                                ethYear -= 1;
+                                ethYear -= 1; // This properly drops it to an 8-year difference for Jan - Aug
                             }
 
                             var isLeap = (ethYear % 4 === 3);
