@@ -414,7 +414,7 @@ module.exports = (prisma) => {
                             
                             var ethYear = 4 * Math.floor((jd - 1723856) / 1461) + Math.floor(r / 365) - Math.floor(r / 1460);
                             var ethMonth = Math.floor(n / 30) + 1;
-                            var ethDay = (n % 30) + 1;
+                            var ethDay = Math.floor((n % 30) + 1);
                             
                             // Safeguard edge case for the end of a 30-day month mapping
                             if (ethMonth === 14) {
