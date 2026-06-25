@@ -265,7 +265,7 @@ module.exports = (prisma) => {
                 </head>
                 <body>
                     <div class="page-header">
-                        <p class="page-eyebrow">Road &amp; Transport Authority · Admin</p>
+                        <p class="page-eyebrow">Trade &amp; Transport Bureau · Admin</p>
                         <h1>Exam Form Submissions Dashboard</h1>
                     </div>
                     
@@ -331,7 +331,7 @@ module.exports = (prisma) => {
                                     </svg>
 
                                     <div class="card-header">
-                                        <p class="eyebrow">Road &amp; Transport Authority</p>
+                                        <p class="eyebrow">Trade &amp; Transport Bureau</p>
                                         <h2>Exam Schedule Notice</h2>
                                         <p class="meta-info">
                                             🗓 <strong>Date:</strong> <span id="view-date"></span><br>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Registration Portal</title>
+    <style>
+        :root {
+            --primary: #007bff;
+            --primary-dark: #0056b3;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Split-screen premium layout wrapper */
+        .portal-container {
+            display: flex;
+            width: 900px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left Sidebar Presentation Panel */
+        .brand-panel {
+            background: linear-gradient(135deg, #0052d4 0%, #4364f7 50%, #6fb1fc 100%);
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #ffffff;
+            position: relative;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-area img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+        }
+
+        .logo-area h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+
+        .welcome-message h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .welcome-message p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.5;
+        }
+
+        /* Right Interactive Form Container */
+        .form-panel {
+            flex: 1.2;
+            padding: 50px 40px;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h3 {
+            font-size: 22px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .form-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5eb;
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text-main);
+            background-color: #fafbfd;
+            transition: all 0.25s ease-in-out;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+        }
+
+        /* Premium Action Button Interaction */
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+            background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* --- THE MINIBUS SURPRISE IMAGE POSITIONING --- */
+        .minibus-graphic {
+            position: absolute;
+            bottom: -15px;
+            right: -25px;
+            width: 160px;
+            height: auto;
+            object-fit: contain;
+            pointer-events: none; /* Keeps fields behind it perfectly clickable */
+            opacity: 0.95;
+            filter: drop-shadow(-5px 8px 12px rgba(0,0,0,0.12));
+            transition: transform 0.3s ease;
+        }
+
+        /* Tiny parallax hovering effect when the user works on the form */
+        .portal-container:hover .minibus-graphic {
+            transform: translate(-5px, -3px) scale(1.03);
+        }
+
+        /* Responsive adaptation for smaller phone viewports */
+        @media (max-width: 820px) {
+            .portal-container {
+                flex-direction: column;
+                width: 100%;
+                max-width: 450px;
+            }
+            .brand-panel {
+                padding: 30px;
+                gap: 40px;
+            }
+            .form-panel {
+                padding: 35px 25px;
+            }
+            .minibus-graphic {
+                width: 120px;
+                right: -10px;
+                bottom: -10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-container">
+        
+        <!-- Left Banner Grid Display -->
+        <div class="brand-panel">
+            <div class="logo-area">
+                <!-- If logo.png is missing, alt text safely falls back elegantly -->
+                <img src="logo.png" alt="Logo">
+                <h1>Transport &<br>Commercial Portal</h1>
+            </div>
+            
+            <div class="welcome-message">
+                <h2>Secure Your Exam Slot</h2>
+                <p>Provide your accurate details, license class requirements, and TIN number registration data directly to the dashboard module manifest.</p>
+            </div>
+            
+            <div style="font-size: 11px; color: rgba(255,255,255,0.6);">© 2026 Registration Desk System</div>
+        </div>
+
+        <!-- Right Side User Input Panels -->
+        <div class="form-panel">
+            <div class="form-header">
+                <h3>Vehicle Information Form</h3>
+                <p>Please double-check all information before submitting.</p>
+            </div>
+
+            <form action="/submit" method="POST">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" placeholder="Enter full official name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" name="mobile_number" placeholder="09... or 07..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Car Type</label>
+                    <select name="car_type" required>
+                        <option value="">-- Select License Type --</option>
+                        <option value="Automobile">Automobile</option>
+                        <option value="Passenger">Passenger</option>
+                        <option value="Dry cargo">Dry cargo</option>
+                        <option value="Three cycle">Three cycle</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>TIN Number</label>
+                    <input type="text" name="tin_number" placeholder="Enter 10-digit TIN number" required>
+                </div>
+
+                <button type="submit">Submit Information</button>
+            </form>
+
+            <!-- Floated Minibus Image layer -->
+            <img src="minibus.png" alt="" class="minibus-graphic">
+        </div>
+
+    </div>
+
+</body>
+</html>
