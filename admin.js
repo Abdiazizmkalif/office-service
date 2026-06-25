@@ -255,7 +255,7 @@ module.exports = (prisma) => {
                             border-top: 2px solid var(--ink-900);
                             border-bottom: 2px solid var(--ink-900);
                         }
-                        .manifest-table th, .manifest-table td { padding: 10px 8px; text-align: left; }
+                        .manifest-table th, .manifest-table td { padding: 6px 8px; text-align: left; }
                         .manifest-table td { border-bottom: 1px solid var(--line); color: var(--ink-900); }
                         .manifest-table tr:last-child td { border-bottom: 2px solid var(--ink-900); }
 
@@ -325,7 +325,7 @@ module.exports = (prisma) => {
                                             <textPath href="#sealArcTop" startOffset="2">EXAM &amp; LICENSING DIVISION</textPath>
                                         </text>
                                         <text font-family="Oswald, sans-serif" font-size="11" font-weight="600" fill="#d98a2b" text-anchor="middle">
-                                            <tspan x="50" y="48">ROAD</tspan>
+                                            <tspan x="50" y="48">Theory</tspan>
                                             <tspan x="50" y="60">TEST</tspan>
                                         </text>
                                     </svg>
