@@ -214,8 +214,8 @@ module.exports = (prisma) => {
 
                         .seal {
                             position: absolute;
-                            top: -22px;
-                            right: -22px;
+                            top: 5px;
+                            right: 5px;
                             width: 72px;
                             height: 72px;
                             transform: rotate(-10deg);
