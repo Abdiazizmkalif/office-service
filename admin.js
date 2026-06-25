@@ -383,48 +383,57 @@ module.exports = (prisma) => {
 
                         function getEthiopianDate(gregorianDateStr) {
                             if (!gregorianDateStr) return { day: 1, month: 1, year: 2018, weekdayAmh: '', weekdaySom: '', weekdayEng: '' };
+                            
                             var date = new Date(gregorianDateStr);
                             
+                            // Day of the week arrays
                             var nativeWeekdaysEng = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
                             var weekdaysAmh = ['እሁድ', 'ሰኞ', 'ማክሰኞ', 'ረቡዕ', 'ሐሙስ', 'አርብ', 'ቅዳሜ'];
                             var weekdaysSom = ['axada', 'isniinta', 'talaadada', 'arbacada', 'khamiista', 'jimcaha', 'sabtida'];
                             var weekdayIdx = date.getDay();
 
+                            // 1. Calculate Julian Day Number from Gregorian Date
                             var year = date.getFullYear();
                             var month = date.getMonth() + 1;
                             var day = date.getDate();
-
-                            // 🌟 FIXED: Changed base from year - 8 to year - 7
-                            var ethYear = year - 7; 
-                            if (month < 9 || (month === 9 && day < 11)) {
-                                ethYear -= 1; // This properly drops it to an 8-year difference for Jan - Aug
+                            
+                            if (month <= 2) {
+                                year -= 1;
+                                month += 12;
                             }
+                            var A = Math.floor(year / 100);
+                            var B = Math.floor(A / 4);
+                            var C = 2 - A + B;
+                            var E = Math.floor(365.25 * (year + 4716));
+                            var F = Math.floor(30.6001 * (month + 1));
+                            var jd = C + day + E + F - 1524.5;
 
-                            var isLeap = (ethYear % 4 === 3);
-                            var newYearDay = isLeap ? 12 : 11;
-                            var ethMonth = 1;
-                            var ethDay = 1;
-
-                            var targetDate = new Date(date);
-                            var startOfEthYear = new Date(year, 8, newYearDay); 
-                            if (targetDate < startOfEthYear) {
-                                startOfEthYear = new Date(year - 1, 8, isLeap ? 12 : 11);
-                            }
-
-                            var differenceInDays = Math.floor((targetDate - startOfEthYear) / (1000 * 60 * 60 * 24));
-                            if (differenceInDays >= 0) {
-                                ethMonth = Math.floor(differenceInDays / 30) + 1;
-                                ethDay = (differenceInDays % 30) + 1;
+                            // 2. Calculate Ethiopian Date from the Julian Day Number
+                            var r = (jd - 1723856) % 1461;
+                            var n = (r % 365) + 365 * Math.floor(r / 1460);
+                            
+                            var ethYear = 4 * Math.floor((jd - 1723856) / 1461) + Math.floor(r / 365) - Math.floor(r / 1460);
+                            var ethMonth = Math.floor(n / 30) + 1;
+                            var ethDay = (n % 30) + 1;
+                            
+                            // Safeguard edge case for the end of a 30-day month mapping
+                            if (ethMonth === 14) {
+                                ethMonth = 13;
+                                ethDay = 6;
                             }
 
                             var months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
                             return {
-                                day: ethDay, month: ethMonth, year: ethYear,
+                                day: ethDay, 
+                                month: ethMonth, // Will perfectly map 1 through 13
+                                year: ethYear,   // Will perfectly stay 2018 E.C. right now
                                 weekdayAmh: weekdaysAmh[weekdayIdx],
                                 weekdaySom: weekdaysSom[weekdayIdx],
                                 weekdayEng: nativeWeekdaysEng[weekdayIdx],
-                                engMonthName: months[date.getMonth()], engDay: date.getDate(), engYear: date.getFullYear()
+                                engMonthName: months[date.getMonth()], 
+                                engDay: date.getDate(), 
+                                engYear: date.getFullYear()
                             };
                         }
 
