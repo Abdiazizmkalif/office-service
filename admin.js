@@ -26,12 +26,12 @@ module.exports = (prisma) => {
                 tableRows += `
                     <tr data-car-type="${(row.carType || '').toUpperCase()}" class="${postedClass}" data-id="${row.id}">
                         <td><input type="checkbox" class="student-select" data-id="${row.id}" data-name="${row.name}" data-car="${row.carType}" data-tin="${row.tinNumber || 'N/A'}" onchange="updateSelectedList()"></td>
-                        <td>${row.id}</td>
+                        <td class="cell-id">${row.id}</td>
                         <td class="student-name">${row.name}</td>
                         <td>${row.mobileNumber}</td>
                         <td>${row.carType}</td>
                         <td>${row.tinNumber || 'N/A'}</td>
-                        <td style="color: #666; font-size: 13px;">${appDate}</td>
+                        <td class="cell-date">${appDate}</td>
                     </tr>
                 `;
             });
@@ -42,62 +42,236 @@ module.exports = (prisma) => {
                 <head>
                     <meta charset="UTF-8">
                     <title>Admin Dashboard - Submissions</title>
-                    <link rel="icon" type="image/png" href="logo.png">
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
                     <style>
-                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 30px; background-color: #f4f6f9; color: #333; }
-                        h1 { margin-bottom: 20px; font-weight: 600; }
-                        
-                        .minimal-bar { background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-                        .filter-group { display: flex; align-items: center; gap: 10px; }
-                        select, input[type="date"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-                        
+                        :root{
+                            --ink-900:#18242f;
+                            --ink-700:#4b5a64;
+                            --paper:#eef1ec;
+                            --card:#fbfbf8;
+                            --amber:#d98a2b;
+                            --amber-dark:#b66f1d;
+                            --green:#2f8f5b;
+                            --green-dark:#24714a;
+                            --line:#d8dcd4;
+                        }
+
+                        *{ box-sizing: border-box; }
+
+                        body {
+                            font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+                            margin: 0;
+                            padding: 32px 36px 60px;
+                            background-color: var(--paper);
+                            color: var(--ink-900);
+                        }
+
+                        h1 {
+                            margin: 0 0 4px;
+                            font-family: 'Oswald', sans-serif;
+                            font-weight: 600;
+                            font-size: 24px;
+                            letter-spacing: 0.01em;
+                        }
+
+                        .page-eyebrow {
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 11px;
+                            letter-spacing: 0.12em;
+                            text-transform: uppercase;
+                            color: var(--amber-dark);
+                            margin: 0 0 6px;
+                        }
+
+                        .page-header { margin-bottom: 26px; }
+
+                        .minimal-bar {
+                            background: var(--card);
+                            padding: 16px 22px;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 10px rgba(24,36,47,0.06);
+                            border: 1px solid var(--line);
+                            margin-bottom: 24px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            gap: 20px;
+                            flex-wrap: wrap;
+                        }
+
+                        .filter-group { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+                        .filter-group label {
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 11px;
+                            letter-spacing: 0.06em;
+                            text-transform: uppercase;
+                            color: var(--ink-700);
+                        }
+
+                        select, input[type="date"] {
+                            padding: 9px 12px;
+                            border: 1.5px solid var(--line);
+                            border-radius: 6px;
+                            font-size: 14px;
+                            font-family: 'IBM Plex Sans', sans-serif;
+                            color: var(--ink-900);
+                            background: #fff;
+                            outline: none;
+                            transition: border-color .15s ease;
+                        }
+                        select:focus, input[type="date"]:focus { border-color: var(--amber); }
+
+                        .counter-wrap { display: flex; align-items: center; gap: 14px; }
+                        #counter-label {
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 13px;
+                            letter-spacing: 0.04em;
+                            color: var(--ink-700);
+                        }
+
                         /* Two-Column Workspace Layout to stop content pushing downwards */
-                        .dashboard-layout { display: flex; gap: 30px; align-items: flex-start; }
+                        .dashboard-layout { display: flex; gap: 28px; align-items: flex-start; }
                         .left-panel { flex: 1; min-width: 0; }
                         .right-panel { width: 620px; position: sticky; top: 20px; flex-shrink: 0; }
-                        
-                        .data-table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
-                        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-                        .data-table th { background-color: #007bff; color: white; }
-                        
-                        tr.selected-row { background-color: #e2f0d9 !important; font-weight: bold; }
-                        tr.already-posted { background-color: #f2f2f2 !important; color: #888; }
-                        tr.already-posted td { border-bottom: 1px solid #e0e0e0; }
-                        tr:hover { background-color: #f1f1f1; }
-                        
-                        .btn { display: inline-block; padding: 10px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; }
-                        
+
+                        .data-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            background: var(--card);
+                            box-shadow: 0 2px 10px rgba(24,36,47,0.06);
+                            border-radius: 10px;
+                            overflow: hidden;
+                            border: 1px solid var(--line);
+                        }
+                        .data-table th, .data-table td {
+                            padding: 12px 14px;
+                            text-align: left;
+                            border-bottom: 1px solid var(--line);
+                            font-size: 14px;
+                        }
+                        .data-table th {
+                            background-color: var(--ink-900);
+                            color: #fff;
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 11px;
+                            letter-spacing: 0.08em;
+                            text-transform: uppercase;
+                            font-weight: 500;
+                        }
+                        .data-table .cell-id, .data-table .cell-date { font-family: 'IBM Plex Mono', monospace; color: var(--ink-700); font-size: 13px; }
+                        .data-table .student-name { font-weight: 600; }
+
+                        .data-table tbody tr:nth-child(even) { background-color: rgba(24,36,47,0.025); }
+
+                        tr.selected-row { background-color: rgba(47,143,91,0.12) !important; }
+                        tr.selected-row .student-name { color: var(--green-dark); }
+                        tr.already-posted { background-color: rgba(75,90,100,0.07) !important; color: #8a9298; }
+                        tr.already-posted td { border-bottom: 1px solid var(--line); }
+                        tr:hover { background-color: rgba(217,138,43,0.07); }
+
+                        .btn {
+                            display: inline-block;
+                            padding: 10px 18px;
+                            background: var(--green);
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 6px;
+                            border: none;
+                            cursor: pointer;
+                            font-family: 'Oswald', sans-serif;
+                            font-size: 13px;
+                            font-weight: 600;
+                            letter-spacing: 0.04em;
+                            text-transform: uppercase;
+                            transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+                            box-shadow: 0 6px 14px -6px rgba(47,143,91,0.55);
+                        }
+                        .btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+                        .btn:active { transform: translateY(0); }
+
                         /* --- CARDS FOR SCREENSHOTS --- */
                         .preview-container { display: none; }
-                        .preview-card { 
-                            width: 600px; 
-                            background: #ffffff; 
-                            border: 3px solid #007bff; 
-                            border-radius: 12px; 
-                            padding: 30px; 
-                            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+                        .preview-card {
+                            position: relative;
+                            width: 600px;
+                            background: #ffffff;
+                            border: 2px solid var(--ink-900);
+                            border-radius: 10px;
+                            padding: 30px;
+                            box-shadow: 0 10px 30px -10px rgba(24,36,47,0.3);
                             box-sizing: border-box;
                         }
-                        .card-header { border-bottom: 2px dashed #007bff; padding-bottom: 15px; margin-bottom: 20px; }
-                        .card-header h2 { margin: 0 0 10px 0; color: #007bff; font-size: 24px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-                        .meta-info { font-size: 16px; line-height: 1.6; margin: 0; padding-left: 5px; }
-                        
-                        .manifest-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 15px; }
-                        .manifest-table th { background-color: #f2f2f2; color: #333; font-weight: bold; border-top: 2px solid #333; border-bottom: 2px solid #333; }
+                        .preview-label {
+                            margin: 0 0 10px;
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 12px;
+                            letter-spacing: 0.06em;
+                            text-transform: uppercase;
+                            color: var(--ink-700);
+                        }
+
+                        .seal {
+                            position: absolute;
+                            top: -22px;
+                            right: -22px;
+                            width: 72px;
+                            height: 72px;
+                            transform: rotate(-10deg);
+                            filter: drop-shadow(0 5px 9px rgba(0,0,0,0.2));
+                        }
+
+                        .card-header { position: relative; border-bottom: 2px dashed var(--amber); padding-bottom: 15px; margin-bottom: 20px; padding-right: 60px; }
+                        .card-header .eyebrow {
+                            margin: 0 0 6px;
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 11px;
+                            letter-spacing: 0.1em;
+                            text-transform: uppercase;
+                            color: var(--amber-dark);
+                            text-align: center;
+                        }
+                        .card-header h2 {
+                            margin: 0 0 10px 0;
+                            color: var(--ink-900);
+                            font-family: 'Oswald', sans-serif;
+                            font-weight: 600;
+                            font-size: 23px;
+                            text-align: center;
+                            text-transform: uppercase;
+                            letter-spacing: 0.04em;
+                        }
+                        .meta-info { font-size: 15px; line-height: 1.7; margin: 0; padding-left: 5px; color: var(--ink-900); }
+
+                        .manifest-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14.5px; }
+                        .manifest-table th {
+                            background-color: var(--paper);
+                            color: var(--ink-900);
+                            font-family: 'IBM Plex Mono', monospace;
+                            font-size: 11px;
+                            letter-spacing: 0.06em;
+                            text-transform: uppercase;
+                            border-top: 2px solid var(--ink-900);
+                            border-bottom: 2px solid var(--ink-900);
+                        }
                         .manifest-table th, .manifest-table td { padding: 10px 8px; text-align: left; }
-                        .manifest-table td { border-bottom: 1px solid #eee; color: #222; }
-                        .manifest-table tr:last-child td { border-bottom: 2px solid #333; }
-                        
-                        .card-footer { background: #f8f9fa; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px; margin-top: 25px; }
-                        .card-footer p { margin: 0; font-size: 15px; line-height: 1.6; font-weight: 500; }
+                        .manifest-table td { border-bottom: 1px solid var(--line); color: var(--ink-900); }
+                        .manifest-table tr:last-child td { border-bottom: 2px solid var(--ink-900); }
+
+                        .card-footer { background: var(--paper); border-left: 4px solid var(--green); padding: 15px 16px; border-radius: 4px; margin-top: 25px; }
+                        .card-footer p { margin: 0; font-size: 14.5px; line-height: 1.7; font-weight: 500; color: var(--ink-900); }
                     </style>
                 </head>
                 <body>
-                    <h1>Exam Form Submissions Dashboard</h1>
+                    <div class="page-header">
+                        <p class="page-eyebrow">Road &amp; Transport Authority · Admin</p>
+                        <h1>Exam Form Submissions Dashboard</h1>
+                    </div>
                     
                     <div class="minimal-bar">
                         <div class="filter-group">
-                            <label for="carFilter"><strong>Type:</strong></label>
+                            <label for="carFilter">Type</label>
                             <select id="carFilter" onchange="filterTable()">
                                 <option value="all">All License Categories</option>
                                 <option value="AUTOMOBILE">AUTOMOBILE</option>
@@ -106,12 +280,12 @@ module.exports = (prisma) => {
                                 <option value="THREE CYCLE">THREE CYCLE</option>
                             </select>
 
-                            <label for="examDate"><strong>Exam Date:</strong></label>
+                            <label for="examDate">Exam Date</label>
                             <input type="date" id="examDate" onchange="updateSelectedList()">
                         </div>
 
-                        <div>
-                            <span id="counter-label" style="font-size:15px; color:#333; font-weight:bold;">Selected: 0</span>
+                        <div class="counter-wrap">
+                            <span id="counter-label">Selected: 0</span>
                             <button id="markPostedBtn" class="btn" style="display:none;" onclick="submitPostedStatus()">Mark as Posted ✓</button>
                         </div>
                     </div>
@@ -139,9 +313,25 @@ module.exports = (prisma) => {
 
                         <div class="right-panel">
                             <div class="preview-container" id="previewContainer">
-                                <h3 style="margin-top: 0; margin-bottom: 10px; color:#555;">Ready for Screenshot:</h3>
+                                <h3 class="preview-label">Ready for Screenshot</h3>
                                 <div class="preview-card" id="postCard">
+                                    <svg class="seal" viewBox="0 0 100 100" aria-hidden="true">
+                                        <defs>
+                                            <path id="sealArcTop" d="M 12 50 A 38 38 0 1 1 88 50" />
+                                        </defs>
+                                        <circle cx="50" cy="50" r="46" fill="none" stroke="#d98a2b" stroke-width="2"/>
+                                        <circle cx="50" cy="50" r="38" fill="none" stroke="#d98a2b" stroke-width="1"/>
+                                        <text font-family="IBM Plex Mono, monospace" font-size="6.3" fill="#d98a2b" letter-spacing="1.5">
+                                            <textPath href="#sealArcTop" startOffset="2">EXAM &amp; LICENSING DIVISION</textPath>
+                                        </text>
+                                        <text font-family="Oswald, sans-serif" font-size="11" font-weight="600" fill="#d98a2b" text-anchor="middle">
+                                            <tspan x="50" y="48">ROAD</tspan>
+                                            <tspan x="50" y="60">TEST</tspan>
+                                        </text>
+                                    </svg>
+
                                     <div class="card-header">
+                                        <p class="eyebrow">Road &amp; Transport Authority</p>
                                         <h2>Exam Schedule Notice</h2>
                                         <p class="meta-info">
                                             🗓 <strong>Date:</strong> <span id="view-date"></span><br>
