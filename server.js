@@ -124,17 +124,17 @@ app.post('/submit', async (req, res) => {
             <div class="success-card">
                 <div class="icon-wrapper">✓</div>
                 <h1>Success!</h1>
-                <h2>Macluumaadka Waa la Keydiyay</h2>
+                <h2>Si guul leh ayaa laguu diiwaangaliyay</h2>
                 
                 <p>Your information has been successfully saved to our database.</p>
                 
                 <div class="divider"></div>
                 
                 <p class="somali-text">
-                    <strong>Fariin:</strong> Fadlan sug inta laga soo dhajinayo magacaaga iyo xilliga imtixaankaaga kanaalka <strong>Telegram-ka</strong>.
+                    <strong>Fariin:</strong> Goorta iyo goobta imtixaanka aad galayso waxaad kala socon kartaa CHANNEL ka <strong>Telegram-ka</strong>.
                 </p>
                 
-                <a href="/" class="btn">Go Back / Dib u Noqo</a>
+                <a href="/" class="btn">Go Back</a>
             </div>
         </body>
         </html>
