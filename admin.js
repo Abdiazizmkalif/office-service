@@ -22,10 +22,11 @@ module.exports = (prisma) => {
                 }) : 'N/A';
 
                 const postedClass = row.isPosted ? 'already-posted' : '';
+                const checkboxDisabled = row.isPosted ? 'disabled' : '';
 
                 tableRows += `
                     <tr data-car-type="${(row.carType || '').toUpperCase()}" class="${postedClass}" data-id="${row.id}">
-                        <td><input type="checkbox" class="student-select" data-id="${row.id}" data-name="${row.name}" data-car="${row.carType}" data-tin="${row.tinNumber || 'N/A'}" onchange="updateSelectedList()"></td>
+                        <td><input type="checkbox" class="student-select" data-id="${row.id}" data-name="${row.name}" data-car="${row.carType}" data-tin="${row.tinNumber || 'N/A'}" onchange="updateSelectedList()" ${checkboxDisabled}></td>
                         <td class="cell-id">${row.id}</td>
                         <td class="student-name">${row.name}</td>
                         <td>${row.mobileNumber}</td>
@@ -56,6 +57,10 @@ module.exports = (prisma) => {
                             --green:#2f8f5b;
                             --green-dark:#24714a;
                             --line:#d8dcd4;
+                            
+                            /* Distinct colors for already posted rows */
+                            --posted-bg: #e4e9ed;
+                            --posted-text: #71828e;
                         }
 
                         *{ box-sizing: border-box; }
@@ -131,7 +136,6 @@ module.exports = (prisma) => {
                             color: var(--ink-700);
                         }
 
-                        /* Two-Column Workspace Layout to stop content pushing downwards */
                         .dashboard-layout { display: flex; gap: 28px; align-items: flex-start; }
                         .left-panel { flex: 1; min-width: 0; }
                         .right-panel { width: 620px; position: sticky; top: 20px; flex-shrink: 0; }
@@ -165,11 +169,17 @@ module.exports = (prisma) => {
 
                         .data-table tbody tr:nth-child(even) { background-color: rgba(24,36,47,0.025); }
 
+                        /* ROW STATES & CONDITIONAL HOVER EXCLUSIONS */
                         tr.selected-row { background-color: rgba(47,143,91,0.12) !important; }
                         tr.selected-row .student-name { color: var(--green-dark); }
-                        tr.already-posted { background-color: rgba(75,90,100,0.07) !important; color: #8a9298; }
+                        
+                        /* New highly distinct style for posted items */
+                        tr.already-posted { background-color: var(--posted-bg) !important; color: var(--posted-text); }
+                        tr.already-posted .student-name, tr.already-posted .cell-id, tr.already-posted .cell-date { color: var(--posted-text); }
                         tr.already-posted td { border-bottom: 1px solid var(--line); }
-                        tr:hover { background-color: rgba(217,138,43,0.07); }
+                        
+                        /* This ensures hover ONLY applies to rows that are neither posted nor selected */
+                        tr:not(.already-posted):not(.selected-row):hover { background-color: rgba(217,138,43,0.07); }
 
                         .btn {
                             display: inline-block;
@@ -191,7 +201,6 @@ module.exports = (prisma) => {
                         .btn:hover { background: var(--green-dark); transform: translateY(-1px); }
                         .btn:active { transform: translateY(0); }
 
-                        /* --- CARDS FOR SCREENSHOTS --- */
                         .preview-container { display: none; }
                         .preview-card {
                             position: relative;
@@ -350,7 +359,7 @@ module.exports = (prisma) => {
                                             </tr>
                                         </thead>
                                         <tbody id="manifestBody">
-                                            </tbody>
+                                        </tbody>
                                     </table>
                                     
                                     <div class="card-footer">
@@ -386,13 +395,11 @@ module.exports = (prisma) => {
                             
                             var date = new Date(gregorianDateStr);
                             
-                            // Day of the week arrays
                             var nativeWeekdaysEng = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
                             var weekdaysAmh = ['እሁድ', 'ሰኞ', 'ማክሰኞ', 'ረቡዕ', 'ሐሙስ', 'አርብ', 'ቅዳሜ'];
                             var weekdaysSom = ['axada', 'isniinta', 'talaadada', 'arbacada', 'khamiista', 'jimcaha', 'sabtida'];
                             var weekdayIdx = date.getDay();
 
-                            // 1. Calculate Julian Day Number from Gregorian Date
                             var year = date.getFullYear();
                             var month = date.getMonth() + 1;
                             var day = date.getDate();
@@ -408,7 +415,6 @@ module.exports = (prisma) => {
                             var F = Math.floor(30.6001 * (month + 1));
                             var jd = C + day + E + F - 1524.5;
 
-                            // 2. Calculate Ethiopian Date from the Julian Day Number
                             var r = (jd - 1723856) % 1461;
                             var n = (r % 365) + 365 * Math.floor(r / 1460);
                             
@@ -416,7 +422,6 @@ module.exports = (prisma) => {
                             var ethMonth = Math.floor(n / 30) + 1;
                             var ethDay = Math.ceil((n % 30) + 1);
                             
-                            // Safeguard edge case for the end of a 30-day month mapping
                             if (ethMonth === 14) {
                                 ethMonth = 13;
                                 ethDay = 6;
@@ -426,8 +431,8 @@ module.exports = (prisma) => {
 
                             return {
                                 day: ethDay, 
-                                month: ethMonth, // Will perfectly map 1 through 13
-                                year: ethYear,   // Will perfectly stay 2018 E.C. right now
+                                month: ethMonth, 
+                                year: ethYear,   
                                 weekdayAmh: weekdaysAmh[weekdayIdx],
                                 weekdaySom: weekdaysSom[weekdayIdx],
                                 weekdayEng: nativeWeekdaysEng[weekdayIdx],
